@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Read, Write},
+    io::{copy, BufRead, BufReader, Write},
     net::TcpListener,
 };
 
@@ -23,17 +23,7 @@ fn main() {
     stream.write(b"OK\n").unwrap();
     println!("CONFIRMATION SENT");
 
-    let mut bytes = 0;
-    let mut buf: [u8; 8192] = [0; 8192];
-
-    loop {
-        let newbytes = stream.read(&mut buf).unwrap();
-        if newbytes == 0 {
-            break;
-        }
-        file.write(buf.split_at(newbytes).0).unwrap();
-        bytes += newbytes;
-    }
+    let bytes = copy(&mut stream, &mut file).unwrap();
 
     println!("RECEIVED {} BYTES", bytes);
     println!("DONE");
